@@ -7,13 +7,13 @@ import id.co.surya.madistrindo.cigarette_distribution.model.response.StockRespon
 import id.co.surya.madistrindo.cigarette_distribution.repository.BranchRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.ProductRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.StockRepository;
+import id.co.surya.madistrindo.cigarette_distribution.exception.ResourceNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -66,9 +66,9 @@ public class StockService {
 
     public StockResponse updateStock(StockRequest req) {
         var product = productRepository.findById(req.productId())
-                .orElseThrow(() -> new NoSuchElementException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         var branch = branchRepository.findById(req.branchId())
-                .orElseThrow(() -> new NoSuchElementException("Branch not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
 
         var stock = stockRepository.findByBranchIdAndProductId(branch.getId(), product.getId())
                 .orElse(new Stock(null, product, branch, 0, LocalDateTime.now()));
@@ -91,7 +91,7 @@ public class StockService {
     @Transactional
     public void decreaseStock(Long branchId, Long productId, int quantity) {
         var stock = stockRepository.findByBranchIdAndProductId(branchId, productId)
-                .orElseThrow(() -> new NoSuchElementException("Stock not found for product " + productId + " in branch " + branchId));
+                .orElseThrow(() -> new ResourceNotFoundException("Stock not found for product " + productId + " in branch " + branchId));
 
         if (stock.getQuantity() < quantity) {
             throw new IllegalArgumentException("Not enough stock in branch " + branchId);
@@ -112,10 +112,10 @@ public class StockService {
         } else {
             // Jika belum ada stoknya, buat baru
             var product = productRepository.findById(productId)
-                    .orElseThrow(() -> new NoSuchElementException("Product not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
             var branch = branchRepository.findById(branchId)
-                    .orElseThrow(() -> new NoSuchElementException("Branch not found"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Branch not found"));
 
             var newStock = new Stock(null, product, branch, quantity,  LocalDateTime.now());
             stockRepository.save(newStock);

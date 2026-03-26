@@ -3,7 +3,9 @@ package id.co.surya.madistrindo.cigarette_distribution.repository;
 import id.co.surya.madistrindo.cigarette_distribution.model.entity.Branch;
 import id.co.surya.madistrindo.cigarette_distribution.model.entity.Product;
 import id.co.surya.madistrindo.cigarette_distribution.model.entity.Stock;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -17,6 +19,7 @@ public interface StockRepository extends JpaRepository<Stock, Long> {
 
     List<Stock> findByBranchId(Long branchId);
 
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
     Optional<Stock> findByBranchIdAndProductId(Long branchId, Long productId);
 
     @Query("SELECT COALESCE(SUM(s.quantity), 0) FROM Stock s")
