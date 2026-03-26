@@ -13,7 +13,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -68,10 +70,11 @@ class DistributionControllerTest {
                 .quantity(10)
                 .build();
 
-        DistributionResponse response = DistributionResponseBuilder.builder()
-                .id(1L)
-                .status("PENDING")
-                .build();
+        ResponseEntity<DistributionResponse> response = ResponseEntity.status(HttpStatus.CREATED)
+                .body(DistributionResponseBuilder.builder()
+                        .id(1L)
+                        .status("PENDING")
+                        .build());
 
         Mockito.when(distributionService.createDistribution(Mockito.any(DistributionRequest.class)))
                 .thenReturn(response);
@@ -79,7 +82,7 @@ class DistributionControllerTest {
         mockMvc.perform(MockMvcRequestBuilders.post("/cigarette-distribution/v1/distributions")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andExpect(MockMvcResultMatchers.status().isCreated());
     }
 
     @Test

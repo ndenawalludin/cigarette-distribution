@@ -7,6 +7,7 @@ import id.co.surya.madistrindo.cigarette_distribution.model.request.Distribution
 import id.co.surya.madistrindo.cigarette_distribution.repository.BranchRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.DistributionRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.ProductRepository;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
@@ -81,8 +81,9 @@ class DistributionServiceTest {
 
         var result = distributionService.createDistribution(request);
 
-        Assertions.assertEquals(50, result.quantity());
-        Assertions.assertEquals("PROSES", result.status());
+        Assertions.assertNotNull(result.getBody());
+        Assertions.assertEquals(50, result.getBody().quantity());
+        Assertions.assertEquals("PROSES", result.getBody().status());
         Mockito.verify(stockService).decreaseStock(branchFrom.getId(), product.getId(), 50);
         Mockito.verify(stockService).increaseStock(branchTo.getId(), product.getId(), 50);
     }
@@ -93,7 +94,7 @@ class DistributionServiceTest {
         DistributionRequest request = new DistributionRequest(999L, 1L, 2L, 10);
         Mockito.when(productRepository.findById(999L)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(NoSuchElementException.class, () -> distributionService.createDistribution(request));
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> distributionService.createDistribution(request));
     }
 
     @Test
@@ -115,7 +116,7 @@ class DistributionServiceTest {
     void updateStatus_notFound() {
         Mockito.when(distributionRepository.findById(99L)).thenReturn(Optional.empty());
 
-        Assertions.assertThrows(NoSuchElementException.class, () -> distributionService.updateStatus(99L, "SELESAI"));
+        Assertions.assertThrows(ResourceNotFoundException.class, () -> distributionService.updateStatus(99L, "SELESAI"));
     }
 
     @Test

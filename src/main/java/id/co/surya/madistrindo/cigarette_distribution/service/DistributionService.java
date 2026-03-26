@@ -8,11 +8,13 @@ import id.co.surya.madistrindo.cigarette_distribution.repository.BranchRepositor
 import id.co.surya.madistrindo.cigarette_distribution.repository.DistributionRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.apache.kafka.common.errors.ResourceNotFoundException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -38,13 +40,13 @@ public class DistributionService {
                 .toList();
     }
 
-    public DistributionResponse createDistribution(DistributionRequest req) {
+    public ResponseEntity<DistributionResponse> createDistribution(DistributionRequest req) {
         var product = productRepository.findById(req.productId())
-                .orElseThrow(() -> new NoSuchElementException("Product not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
         var branchFrom = branchRepository.findById(req.branchFromId())
-                .orElseThrow(() -> new NoSuchElementException("Origin branch not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Origin branch not found"));
         var branchTo = branchRepository.findById(req.branchToId())
-                .orElseThrow(() -> new NoSuchElementException("Destination branch not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Destination branch not found"));
 
         stockService.decreaseStock(branchFrom.getId(), product.getId(), req.quantity());
 
@@ -53,19 +55,22 @@ public class DistributionService {
         var dist = new Distribution(null, product, branchFrom, branchTo, req.quantity(), "PROSES", LocalDateTime.now(), SYSTEM, null, SYSTEM);
         var saved = distributionRepository.save(dist);
 
-        return DistributionResponseBuilder.builder()
-                .id(saved.getId())
-                .product(saved.getProduct())
-                .branchFrom(saved.getBranchFrom())
-                .branchTo(saved.getBranchTo())
-                .quantity(saved.getQuantity())
-                .status(saved.getStatus())
-                .build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(
+                        DistributionResponseBuilder.builder()
+                                .id(saved.getId())
+                                .product(saved.getProduct())
+                                .branchFrom(saved.getBranchFrom())
+                                .branchTo(saved.getBranchTo())
+                                .quantity(saved.getQuantity())
+                                .status(saved.getStatus())
+                                .build())
+                ;
     }
 
     public DistributionResponse updateStatus(Long id, String status) {
         var dist = distributionRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Distribution not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Distribution not found"));
         dist.setStatus(status);
         dist.setUpdatedAt(LocalDateTime.now());
         dist.setUpdatedBy(SYSTEM);

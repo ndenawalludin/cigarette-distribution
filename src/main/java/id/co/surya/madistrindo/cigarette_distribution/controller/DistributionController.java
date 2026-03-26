@@ -4,6 +4,7 @@ import id.co.surya.madistrindo.cigarette_distribution.model.request.Distribution
 import id.co.surya.madistrindo.cigarette_distribution.model.response.DistributionResponse;
 import id.co.surya.madistrindo.cigarette_distribution.service.DistributionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +28,7 @@ public class DistributionController {
     }
 
     @PostMapping
-    public DistributionResponse create(@RequestBody DistributionRequest req) {
+    public ResponseEntity<DistributionResponse> create(@RequestBody DistributionRequest req) {
         return distributionService.createDistribution(req);
     }
 
