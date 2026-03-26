@@ -7,7 +7,7 @@ import id.co.surya.madistrindo.cigarette_distribution.model.request.Distribution
 import id.co.surya.madistrindo.cigarette_distribution.repository.BranchRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.DistributionRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.ProductRepository;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
+import id.co.surya.madistrindo.cigarette_distribution.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

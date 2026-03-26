@@ -8,7 +8,7 @@ import id.co.surya.madistrindo.cigarette_distribution.repository.BranchRepositor
 import id.co.surya.madistrindo.cigarette_distribution.repository.DistributionRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.common.errors.ResourceNotFoundException;
+import id.co.surya.madistrindo.cigarette_distribution.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
