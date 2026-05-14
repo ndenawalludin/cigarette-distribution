@@ -8,6 +8,7 @@ import id.co.surya.madistrindo.cigarette_distribution.repository.BranchRepositor
 import id.co.surya.madistrindo.cigarette_distribution.repository.ProductRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.StockRepository;
 import id.co.surya.madistrindo.cigarette_distribution.exception.ResourceNotFoundException;
+import id.co.surya.madistrindo.cigarette_distribution.exception.InsufficientStockException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -94,7 +95,8 @@ public class StockService {
                 .orElseThrow(() -> new ResourceNotFoundException("Stock not found for product " + productId + " in branch " + branchId));
 
         if (stock.getQuantity() < quantity) {
-            throw new IllegalArgumentException("Not enough stock in branch " + branchId);
+            throw new InsufficientStockException("Stok tidak mencukupi di cabang " + stock.getBranch().getName() + 
+                ". Stok tersedia: " + stock.getQuantity() + ", permintaan: " + quantity);
         }
 
         stock.setQuantity(stock.getQuantity() - quantity);

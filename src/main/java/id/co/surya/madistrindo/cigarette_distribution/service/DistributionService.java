@@ -7,6 +7,7 @@ import id.co.surya.madistrindo.cigarette_distribution.model.response.Distributio
 import id.co.surya.madistrindo.cigarette_distribution.repository.BranchRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.DistributionRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.ProductRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import id.co.surya.madistrindo.cigarette_distribution.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -40,6 +41,7 @@ public class DistributionService {
                 .toList();
     }
 
+    @Transactional
     public ResponseEntity<DistributionResponse> createDistribution(DistributionRequest req) {
         var product = productRepository.findById(req.productId())
                 .orElseThrow(() -> new ResourceNotFoundException("Product not found"));

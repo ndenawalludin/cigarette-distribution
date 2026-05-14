@@ -8,6 +8,7 @@ import id.co.surya.madistrindo.cigarette_distribution.repository.BranchRepositor
 import id.co.surya.madistrindo.cigarette_distribution.repository.DistributionRepository;
 import id.co.surya.madistrindo.cigarette_distribution.repository.ProductRepository;
 import id.co.surya.madistrindo.cigarette_distribution.exception.ResourceNotFoundException;
+import id.co.surya.madistrindo.cigarette_distribution.exception.InsufficientStockException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -95,6 +96,22 @@ class DistributionServiceTest {
         Mockito.when(productRepository.findById(999L)).thenReturn(Optional.empty());
 
         Assertions.assertThrows(ResourceNotFoundException.class, () -> distributionService.createDistribution(request));
+    }
+
+    @Test
+    @DisplayName("Create distribution - should throw exception if stock is insufficient")
+    void createDistribution_insufficientStock() {
+        DistributionRequest request = new DistributionRequest(product.getId(), branchFrom.getId(), branchTo.getId(), 1000);
+
+        Mockito.when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
+        Mockito.when(branchRepository.findById(branchFrom.getId())).thenReturn(Optional.of(branchFrom));
+        Mockito.when(branchRepository.findById(branchTo.getId())).thenReturn(Optional.of(branchTo));
+
+        Mockito.doThrow(new InsufficientStockException("Insufficient stock"))
+                .when(stockService).decreaseStock(branchFrom.getId(), product.getId(), 1000);
+
+        Assertions.assertThrows(InsufficientStockException.class, () -> distributionService.createDistribution(request));
+        Mockito.verify(distributionRepository, Mockito.never()).save(Mockito.any());
     }
 
     @Test
