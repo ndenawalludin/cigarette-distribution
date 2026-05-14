@@ -1,0 +1,7 @@
+.gradle
+.idea
+build
+*.class
+*.log
+.DS_Store
+**/src/main/java/id/co/surya/madistrindo/.DS_Store
